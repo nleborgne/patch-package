@@ -1,9 +1,9 @@
 {
-  "name": "patch-package",
-  "version": "8.0.0",
+  "name": "@nleborgne/patch-package",
+  "version": "8.0.1",
   "description": "Fix broken node modules with no fuss",
   "main": "dist/index.js",
-  "repository": "github:ds300/patch-package",
+  "repository": "github:nleborgne/patch-package",
   "author": "David Sheldrick",
   "license": "MIT",
   "engines": {
@@ -15,9 +15,9 @@
     "prepublishOnly": "yarn run clean && yarn run build",
     "build": "tsc --project tsconfig.build.json",
     "new-integration-test": "ts-node integration-tests/newIntegrationTest.ts",
-    "clean": "rimraf dist patch-package.test*.tgz",
+    "clean": "rimraf --glob dist patch-package.test*.tgz",
     "format": "prettier --no-semi --write --trailing-comma=all src{/**,}/*.ts integration-tests{/**,}/*.ts property-based-tests{/**,}/*.ts",
-    "prepack": "rimraf dist/**/*.test.js",
+    "prepack": "rimraf --glob dist/**/*.test.js",
     "test": "./run-tests.sh --runInBand"
   },
   "husky": {

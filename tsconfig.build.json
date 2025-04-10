@@ -1,4 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "exclude": ["./property-based-tests", "./integration-tests"]
-}
