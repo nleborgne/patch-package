@@ -1,0 +1,49 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.readPatch = void 0;
+const chalk_1 = __importDefault(require("chalk"));
+const fs_extra_1 = require("fs-extra");
+const path_1 = require("../path");
+const path_2 = require("path");
+const parse_1 = require("./parse");
+function readPatch({ patchFilePath, patchDetails, patchDir, }) {
+    try {
+        return parse_1.parsePatchFile(fs_extra_1.readFileSync(patchFilePath).toString());
+    }
+    catch (e) {
+        const fixupSteps = [];
+        const relativePatchFilePath = path_2.normalize(path_1.relative(process.cwd(), patchFilePath));
+        const patchBaseDir = relativePatchFilePath.slice(0, relativePatchFilePath.indexOf(patchDir));
+        if (patchBaseDir) {
+            fixupSteps.push(`cd ${patchBaseDir}`);
+        }
+        fixupSteps.push(`patch -p1 -i ${relativePatchFilePath.slice(relativePatchFilePath.indexOf(patchDir))}`);
+        fixupSteps.push(`npx patch-package ${patchDetails.pathSpecifier}`);
+        if (patchBaseDir) {
+            fixupSteps.push(`cd ${path_1.relative(path_1.resolve(process.cwd(), patchBaseDir), process.cwd())}`);
+        }
+        console.log(`
+${chalk_1.default.red.bold("**ERROR**")} ${chalk_1.default.red(`Failed to apply patch for package ${chalk_1.default.bold(patchDetails.humanReadablePathSpecifier)}`)}
+    
+  This happened because the patch file ${relativePatchFilePath} could not be parsed.
+   
+  If you just upgraded patch-package, you can try running:
+  
+    ${fixupSteps.join("\n    ")}
+    
+  Otherwise, try manually creating the patch file again.
+  
+  If the problem persists, please submit a bug report:
+  
+    https://github.com/ds300/patch-package/issues/new?title=Patch+file+parse+error&body=%3CPlease+attach+the+patch+file+in+question%3E
+
+`);
+        process.exit(1);
+    }
+    return [];
+}
+exports.readPatch = readPatch;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoicmVhZC5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9wYXRjaC9yZWFkLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7Ozs7OztBQUFBLGtEQUF5QjtBQUN6Qix1Q0FBdUM7QUFDdkMsa0NBQTJDO0FBQzNDLCtCQUFnQztBQUVoQyxtQ0FBdUQ7QUFFdkQsU0FBZ0IsU0FBUyxDQUFDLEVBQ3hCLGFBQWEsRUFDYixZQUFZLEVBQ1osUUFBUSxHQUtUO0lBQ0MsSUFBSTtRQUNGLE9BQU8sc0JBQWMsQ0FBQyx1QkFBWSxDQUFDLGFBQWEsQ0FBQyxDQUFDLFFBQVEsRUFBRSxDQUFDLENBQUE7S0FDOUQ7SUFBQyxPQUFPLENBQUMsRUFBRTtRQUNWLE1BQU0sVUFBVSxHQUFhLEVBQUUsQ0FBQTtRQUMvQixNQUFNLHFCQUFxQixHQUFHLGdCQUFTLENBQ3JDLGVBQVEsQ0FBQyxPQUFPLENBQUMsR0FBRyxFQUFFLEVBQUUsYUFBYSxDQUFDLENBQ3ZDLENBQUE7UUFDRCxNQUFNLFlBQVksR0FBRyxxQkFBcUIsQ0FBQyxLQUFLLENBQzlDLENBQUMsRUFDRCxxQkFBcUIsQ0FBQyxPQUFPLENBQUMsUUFBUSxDQUFDLENBQ3hDLENBQUE7UUFDRCxJQUFJLFlBQVksRUFBRTtZQUNoQixVQUFVLENBQUMsSUFBSSxDQUFDLE1BQU0sWUFBWSxFQUFFLENBQUMsQ0FBQTtTQUN0QztRQUNELFVBQVUsQ0FBQyxJQUFJLENBQ2IsZ0JBQWdCLHFCQUFxQixDQUFDLEtBQUssQ0FDekMscUJBQXFCLENBQUMsT0FBTyxDQUFDLFFBQVEsQ0FBQyxDQUN4QyxFQUFFLENBQ0osQ0FBQTtRQUNELFVBQVUsQ0FBQyxJQUFJLENBQUMscUJBQXFCLFlBQVksQ0FBQyxhQUFhLEVBQUUsQ0FBQyxDQUFBO1FBQ2xFLElBQUksWUFBWSxFQUFFO1lBQ2hCLFVBQVUsQ0FBQyxJQUFJLENBQ2IsTUFBTSxlQUFRLENBQUMsY0FBTyxDQUFDLE9BQU8sQ0FBQyxHQUFHLEVBQUUsRUFBRSxZQUFZLENBQUMsRUFBRSxPQUFPLENBQUMsR0FBRyxFQUFFLENBQUMsRUFBRSxDQUN0RSxDQUFBO1NBQ0Y7UUFFRCxPQUFPLENBQUMsR0FBRyxDQUFDO0VBQ2QsZUFBSyxDQUFDLEdBQUcsQ0FBQyxJQUFJLENBQUMsV0FBVyxDQUFDLElBQUksZUFBSyxDQUFDLEdBQUcsQ0FDcEMscUNBQXFDLGVBQUssQ0FBQyxJQUFJLENBQzdDLFlBQVksQ0FBQywwQkFBMEIsQ0FDeEMsRUFBRSxDQUNKOzt5Q0FFb0MscUJBQXFCOzs7O01BSXhELFVBQVUsQ0FBQyxJQUFJLENBQUMsUUFBUSxDQUFDOzs7Ozs7OztDQVE5QixDQUFDLENBQUE7UUFDRSxPQUFPLENBQUMsSUFBSSxDQUFDLENBQUMsQ0FBQyxDQUFBO0tBQ2hCO0lBQ0QsT0FBTyxFQUFFLENBQUE7QUFDWCxDQUFDO0FBMURELDhCQTBEQyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBjaGFsayBmcm9tIFwiY2hhbGtcIlxyXG5pbXBvcnQgeyByZWFkRmlsZVN5bmMgfSBmcm9tIFwiZnMtZXh0cmFcIlxyXG5pbXBvcnQgeyByZWxhdGl2ZSwgcmVzb2x2ZSB9IGZyb20gXCIuLi9wYXRoXCJcclxuaW1wb3J0IHsgbm9ybWFsaXplIH0gZnJvbSBcInBhdGhcIlxyXG5pbXBvcnQgeyBQYWNrYWdlRGV0YWlscyB9IGZyb20gXCIuLi9QYWNrYWdlRGV0YWlsc1wiXHJcbmltcG9ydCB7IHBhcnNlUGF0Y2hGaWxlLCBQYXRjaEZpbGVQYXJ0IH0gZnJvbSBcIi4vcGFyc2VcIlxyXG5cclxuZXhwb3J0IGZ1bmN0aW9uIHJlYWRQYXRjaCh7XHJcbiAgcGF0Y2hGaWxlUGF0aCxcclxuICBwYXRjaERldGFpbHMsXHJcbiAgcGF0Y2hEaXIsXHJcbn06IHtcclxuICBwYXRjaEZpbGVQYXRoOiBzdHJpbmdcclxuICBwYXRjaERldGFpbHM6IFBhY2thZ2VEZXRhaWxzXHJcbiAgcGF0Y2hEaXI6IHN0cmluZ1xyXG59KTogUGF0Y2hGaWxlUGFydFtdIHtcclxuICB0cnkge1xyXG4gICAgcmV0dXJuIHBhcnNlUGF0Y2hGaWxlKHJlYWRGaWxlU3luYyhwYXRjaEZpbGVQYXRoKS50b1N0cmluZygpKVxyXG4gIH0gY2F0Y2ggKGUpIHtcclxuICAgIGNvbnN0IGZpeHVwU3RlcHM6IHN0cmluZ1tdID0gW11cclxuICAgIGNvbnN0IHJlbGF0aXZlUGF0Y2hGaWxlUGF0aCA9IG5vcm1hbGl6ZShcclxuICAgICAgcmVsYXRpdmUocHJvY2Vzcy5jd2QoKSwgcGF0Y2hGaWxlUGF0aCksXHJcbiAgICApXHJcbiAgICBjb25zdCBwYXRjaEJhc2VEaXIgPSByZWxhdGl2ZVBhdGNoRmlsZVBhdGguc2xpY2UoXHJcbiAgICAgIDAsXHJcbiAgICAgIHJlbGF0aXZlUGF0Y2hGaWxlUGF0aC5pbmRleE9mKHBhdGNoRGlyKSxcclxuICAgIClcclxuICAgIGlmIChwYXRjaEJhc2VEaXIpIHtcclxuICAgICAgZml4dXBTdGVwcy5wdXNoKGBjZCAke3BhdGNoQmFzZURpcn1gKVxyXG4gICAgfVxyXG4gICAgZml4dXBTdGVwcy5wdXNoKFxyXG4gICAgICBgcGF0Y2ggLXAxIC1pICR7cmVsYXRpdmVQYXRjaEZpbGVQYXRoLnNsaWNlKFxyXG4gICAgICAgIHJlbGF0aXZlUGF0Y2hGaWxlUGF0aC5pbmRleE9mKHBhdGNoRGlyKSxcclxuICAgICAgKX1gLFxyXG4gICAgKVxyXG4gICAgZml4dXBTdGVwcy5wdXNoKGBucHggcGF0Y2gtcGFja2FnZSAke3BhdGNoRGV0YWlscy5wYXRoU3BlY2lmaWVyfWApXHJcbiAgICBpZiAocGF0Y2hCYXNlRGlyKSB7XHJcbiAgICAgIGZpeHVwU3RlcHMucHVzaChcclxuICAgICAgICBgY2QgJHtyZWxhdGl2ZShyZXNvbHZlKHByb2Nlc3MuY3dkKCksIHBhdGNoQmFzZURpciksIHByb2Nlc3MuY3dkKCkpfWAsXHJcbiAgICAgIClcclxuICAgIH1cclxuXHJcbiAgICBjb25zb2xlLmxvZyhgXHJcbiR7Y2hhbGsucmVkLmJvbGQoXCIqKkVSUk9SKipcIil9ICR7Y2hhbGsucmVkKFxyXG4gICAgICBgRmFpbGVkIHRvIGFwcGx5IHBhdGNoIGZvciBwYWNrYWdlICR7Y2hhbGsuYm9sZChcclxuICAgICAgICBwYXRjaERldGFpbHMuaHVtYW5SZWFkYWJsZVBhdGhTcGVjaWZpZXIsXHJcbiAgICAgICl9YCxcclxuICAgICl9XHJcbiAgICBcclxuICBUaGlzIGhhcHBlbmVkIGJlY2F1c2UgdGhlIHBhdGNoIGZpbGUgJHtyZWxhdGl2ZVBhdGNoRmlsZVBhdGh9IGNvdWxkIG5vdCBiZSBwYXJzZWQuXHJcbiAgIFxyXG4gIElmIHlvdSBqdXN0IHVwZ3JhZGVkIHBhdGNoLXBhY2thZ2UsIHlvdSBjYW4gdHJ5IHJ1bm5pbmc6XHJcbiAgXHJcbiAgICAke2ZpeHVwU3RlcHMuam9pbihcIlxcbiAgICBcIil9XHJcbiAgICBcclxuICBPdGhlcndpc2UsIHRyeSBtYW51YWxseSBjcmVhdGluZyB0aGUgcGF0Y2ggZmlsZSBhZ2Fpbi5cclxuICBcclxuICBJZiB0aGUgcHJvYmxlbSBwZXJzaXN0cywgcGxlYXNlIHN1Ym1pdCBhIGJ1ZyByZXBvcnQ6XHJcbiAgXHJcbiAgICBodHRwczovL2dpdGh1Yi5jb20vZHMzMDAvcGF0Y2gtcGFja2FnZS9pc3N1ZXMvbmV3P3RpdGxlPVBhdGNoK2ZpbGUrcGFyc2UrZXJyb3ImYm9keT0lM0NQbGVhc2UrYXR0YWNoK3RoZStwYXRjaCtmaWxlK2luK3F1ZXN0aW9uJTNFXHJcblxyXG5gKVxyXG4gICAgcHJvY2Vzcy5leGl0KDEpXHJcbiAgfVxyXG4gIHJldHVybiBbXVxyXG59XHJcbiJdfQ==
